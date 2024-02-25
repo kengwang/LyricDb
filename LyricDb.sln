@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LyricDb.Web", "LyricDb.Web\LyricDb.Web.csproj", "{7F6600E5-C9AF-4D01-BDBE-73541166E666}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LyricDb.Worker", "LyricDb.Worker\LyricDb.Worker.csproj", "{A5CCEFD0-18B6-4439-A32A-983B5F14405D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LyricDb.Contracts", "LyricDb.Contracts\LyricDb.Contracts.csproj", "{B14FA9EE-2508-44D2-B805-A414AD4BA195}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7F6600E5-C9AF-4D01-BDBE-73541166E666}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7F6600E5-C9AF-4D01-BDBE-73541166E666}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F6600E5-C9AF-4D01-BDBE-73541166E666}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7F6600E5-C9AF-4D01-BDBE-73541166E666}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5CCEFD0-18B6-4439-A32A-983B5F14405D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5CCEFD0-18B6-4439-A32A-983B5F14405D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5CCEFD0-18B6-4439-A32A-983B5F14405D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5CCEFD0-18B6-4439-A32A-983B5F14405D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B14FA9EE-2508-44D2-B805-A414AD4BA195}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B14FA9EE-2508-44D2-B805-A414AD4BA195}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B14FA9EE-2508-44D2-B805-A414AD4BA195}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B14FA9EE-2508-44D2-B805-A414AD4BA195}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
