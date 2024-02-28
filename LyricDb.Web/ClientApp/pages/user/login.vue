@@ -1,16 +1,14 @@
 <script lang="ts" setup>
 import {useApi} from "~/composables/api";
-import {Md5} from "ts-md5";
 
 definePageMeta({
   layout: "login"
 })
-let currentUser = useUserInfo()
-let loginInfo = ref({
+let loginInfo = reactive({
   account: '',
   password: ''
 })
-let alertInfo = ref({
+let alertInfo = reactive({
   type: undefined as "error" | "success" | "warning" | "info" | undefined,
   message: '登录即代表您同意我们的服务条款和隐私政策',
   title: '',
@@ -18,37 +16,33 @@ let alertInfo = ref({
 })
 
 function doLogin() {
-  alertInfo.value.loading = true
-  if (loginInfo.value.account === '' || loginInfo.value.password === '') {
-    alertInfo.value = {
-      type: 'error',
-      message: '用户名和密码不能为空',
-      title: '错误',
-      loading: false
-    }
+  alertInfo.loading = true
+  if (loginInfo.account === '' || loginInfo.password === '') {
+    alertInfo.type = 'error';
+    alertInfo.message = '用户名和密码不能为空';
+    alertInfo.title = '错误';
+    alertInfo.loading = false;
     return
   }
   useApi().user.postLogin(
       {
-        account: loginInfo.value.account,
-        password: loginInfo.value.password
+        account: loginInfo.account,
+        password: loginInfo.password
       }).then(res => {
     updateUserInfo()
-    alertInfo.value = {
-      type: 'success',
-      message: '登录成功，欢迎回来 ' + res.data.userName,
-      title: '登录成功',
-      loading: false
-    }
+    alertInfo.type = 'success';
+    alertInfo.message = '登录成功，欢迎回来 ' + res.data.userName;
+    alertInfo.title = '登录成功';
+    alertInfo.loading = false;
     setTimeout(() => {
       useRouter().push('/')
     }, 3000)
   }).catch(err => {
-    alertInfo.value.type = 'error'
-    alertInfo.value.title = '登录失败'
-    alertInfo.value.message = err.response?.data?.detail ?? err.message ?? '未知错误'
+    alertInfo.type = 'error'
+    alertInfo.title = '登录失败'
+    alertInfo.message = err.response?.data?.detail ?? err.message ?? '未知错误'
   }).finally(() => {
-    alertInfo.value.loading = false
+    alertInfo.loading = false
   })
 }
 

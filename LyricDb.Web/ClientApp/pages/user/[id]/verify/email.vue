@@ -2,18 +2,18 @@
 let verifyToken = useRoute().query.token as string
 let userId = useRoute().params.id as string
 let message = ref("正在验证您的邮箱")
-let verifyInfo = ref({
+let verifyInfo = reactive({
   isVerified: false,
   isLoading: true
 })
 useApi().user.confirmEmail(userId, {token: verifyToken}).then(() => {
-  verifyInfo.value.isVerified = true
-  verifyInfo.value.isLoading = false
+  verifyInfo.isVerified = true
+  verifyInfo.isLoading = false
   message.value = "邮箱验证成功"
   updateUserInfo()
 }).catch(() => {
-  verifyInfo.value.isVerified = false
-  verifyInfo.value.isLoading = false
+  verifyInfo.isVerified = false
+  verifyInfo.isLoading = false
   message.value = "邮箱验证失败"
 })
 </script>

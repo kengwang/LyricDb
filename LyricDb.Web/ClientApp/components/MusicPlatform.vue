@@ -21,14 +21,14 @@ const platformInfo =
       "spo": {
         name: "Spotify",
         color: "#1DB954",
-        icon: "https://www.scdn.co/i/_global/favicon.png",
+        icon: "https://open.spotifycdn.com/cdn/images/favicon.0f31d2ea.ico",
         url: "https://open.spotify.com/track/{id}"
       },
       "apl": {
         name: "Apple Music",
         color: "#ff0059",
-        icon: "https://music.apple.com/favicon.ico",
-        url: "https://music.apple.com/cn/album/{id}"
+        icon: "https://music.apple.com/assets/favicon/favicon-180.png",
+        url: "https://music.apple.com/cn/song/{id}"
       }
     }
 function goto(url: string) {

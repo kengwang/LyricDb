@@ -1,4 +1,5 @@
-<script setup lang="ts">
+<script lang="ts" setup>
+useRouter().push('/song')
 
 </script>
 

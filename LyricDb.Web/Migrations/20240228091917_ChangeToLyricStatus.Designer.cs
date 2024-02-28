@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using LyricDb.Web;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace LyricDb.Web.Migrations
 {
     [DbContext(typeof(PostgresDbContext))]
-    partial class PostgresDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240228091917_ChangeToLyricStatus")]
+    partial class ChangeToLyricStatus
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,9 +70,6 @@ namespace LyricDb.Web.Migrations
 
                     b.Property<DateTime>("CreateTime")
                         .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("Duration")
-                        .HasColumnType("integer");
 
                     b.Property<string>("Proofreader")
                         .HasColumnType("text");
@@ -132,9 +132,6 @@ namespace LyricDb.Web.Migrations
 
                     b.Property<Guid>("CurrentLyric")
                         .HasColumnType("uuid");
-
-                    b.Property<int>("Duration")
-                        .HasColumnType("integer");
 
                     b.Property<List<Guid>>("Lyrics")
                         .IsRequired()

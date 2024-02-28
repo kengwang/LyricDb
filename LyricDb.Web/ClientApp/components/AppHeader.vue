@@ -1,10 +1,10 @@
 <script lang="ts" setup>
 let userInfo = useUserInfo();
 
-function onAvatarClick(){
+function onAvatarClick() {
   if (userInfo.value.isLogin) {
     useRouter().push('/user')
-  }else{
+  } else {
     useRouter().push('/user/login')
   }
 }
@@ -13,9 +13,6 @@ function onAvatarClick(){
 <template>
   <v-app-bar
       class="px-3">
-    <template v-slot:prepend>
-      <v-app-bar-nav-icon></v-app-bar-nav-icon>
-    </template>
     <v-app-bar-title class="app-title">
       LyricDB
     </v-app-bar-title>
@@ -24,7 +21,9 @@ function onAvatarClick(){
 
 
     <v-spacer/>
-    <UserAvatar @click="onAvatarClick" :user-info="userInfo" :is-known="userInfo.isLogin" />
+    <v-btn>
+      <UserAvatar :is-known="userInfo.isLogin" :user-info="userInfo" @click="onAvatarClick"/>
+    </v-btn>
   </v-app-bar>
 </template>
 

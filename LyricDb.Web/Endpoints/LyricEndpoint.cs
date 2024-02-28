@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
 using ALRC.Abstraction;
+using LyricDb.Contracts.Models;
 using LyricDb.Web.Interfaces;
 using LyricDb.Web.Models.Constants;
 using LyricDb.Web.Models.Dao;
@@ -9,6 +10,7 @@ using LyricDb.Web.Models.Dto.Responses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LyricDb.Web.Endpoints;
 
@@ -21,6 +23,9 @@ public class LyricEndpoint : IEndpointBase
     public static void ConfigureApp(WebApplication app)
     {
         var group = app.MapGroup("/lyric");
+        group.MapGet("", GetPagedLyrics)
+            .Produces<PagedResponseBase<LyricInfoResponse>>()
+            .WithName(nameof(GetPagedLyrics));
         group.MapGet("/{id:guid}", GetLyric)
             .Produces(StatusCodes.Status404NotFound)
             .Produces<LyricInfoResponse>()
@@ -42,7 +47,7 @@ public class LyricEndpoint : IEndpointBase
         group.MapPost("", PostLyric)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status201Created)
+            .Produces(StatusCodes.Status200OK)
             .WithName(nameof(PostLyric));
         group.MapPost("/{type}", PostLyricType)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -50,8 +55,137 @@ public class LyricEndpoint : IEndpointBase
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status201Created)
             .WithName(nameof(PostLyricType));
+        group.MapPut("", PutLyric)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status200OK)
+            .WithName(nameof(PutLyric));
+        group.MapPut("/{type}", PutLyricType)
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status400BadRequest)
+            .Produces(StatusCodes.Status201Created)
+            .WithName(nameof(PutLyricType));
+    }
+    
+    private static async Task<IResult> GetPagedLyrics(
+        [FromServices] IRepository<Lyric> repository,
+        [FromServices] IMapper<Lyric, LyricInfoResponse> mapper,
+        [FromQuery] int page = 0,
+        [FromQuery] int pageSize = 10,
+        [FromQuery] int status = -1,
+        CancellationToken cancellationToken = default)
+    {
+        var query = await repository.GetQueryableAsync(cancellationToken);
+        if (status != -1)
+        {
+            query = query.Where(x => x.Status == (LyricStatus)status );
+        }
+        var total = await query.CountAsync(cancellationToken);
+        var lyrics = await query
+            .OrderByDescending(t => t.CreateTime)
+            .Skip(page * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+        return Results.Ok(new PagedResponseBase<LyricInfoResponse>
+        {
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = total,
+            TotalPages = (int) Math.Ceiling(total / (double) pageSize),
+            Items = lyrics.Select(mapper.Map).ToList()
+        });
     }
 
+    [Authorize(Roles = AuthRole.Reviewer)]
+    private static async Task<IResult> PutLyric(
+        [FromBody] LyricPutRequest request,
+        [FromServices] IRepository<Lyric> repository,
+        [FromServices] IMapper<Lyric, LyricInfoResponse> mapper,
+        [FromServices] UserManager<User> userManager,
+        [FromServices] IRepository<Song> songRepository,
+        ClaimsPrincipal principal,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await userManager.GetUserAsync(principal);
+        if (user is null || user.Role < UserRole.Admin)
+        {
+            return Results.Unauthorized();
+        }
+
+        var lyric = await repository.ReadAsync(request.Id, cancellationToken);
+        if (lyric is null)
+        {
+            return Results.NotFound();
+        }
+        
+        lyric.Status = (LyricStatus)request.Status;
+        if (lyric.Status is LyricStatus.Approved or LyricStatus.Rejected)
+        {
+            lyric.Reviewer = user;
+        }
+
+        if (!string.IsNullOrEmpty(request.Content))
+        {
+            lyric.Content = request.Content;
+        }
+        
+        await repository.UpdateAsync(lyric, cancellationToken);
+        return Results.Ok(mapper.Map(lyric));
+    }
+    
+    [Authorize(Roles = AuthRole.Reviewer)]
+    private static async Task<IResult> PutLyricType(
+        [FromRoute] string? type,
+        [FromBody] LyricPutRequest request,
+        [FromServices] IRepository<Lyric> repository,
+        [FromServices] IMapper<Lyric, LyricInfoResponse> mapper,
+        [FromServices] UserManager<User> userManager,
+        [FromServices] IRepository<Song> songRepository,
+        [FromServices] ILyricConverterSelector lyricConverterSelector,
+        ClaimsPrincipal principal,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await userManager.GetUserAsync(principal);
+        if (user is null || user.Role < UserRole.Admin)
+        {
+            return Results.Unauthorized();
+        }
+
+        var lyric = await repository.ReadAsync(request.Id, cancellationToken);
+        if (lyric is null)
+        {
+            return Results.NotFound();
+        }
+
+        lyric.Author = request.Author;
+        lyric.Proofreader = request.Proofreader;
+        lyric.Timeline = request.Timeline;
+        lyric.Translator = request.Translator;
+        lyric.Transliterator = request.Transliterator;
+        lyric.Status = (LyricStatus)request.Status;
+        if (lyric.Status is LyricStatus.Approved or LyricStatus.Rejected)
+        {
+            lyric.Reviewer = user;
+        }
+
+        if (!string.IsNullOrEmpty(request.Content))
+        {
+            var converter = lyricConverterSelector.GetConverter(type);
+            var alrcConverter = lyricConverterSelector.GetConverter("alrc");
+            if (converter is null || alrcConverter is null)
+            {
+                return Results.BadRequest("Bad type");
+            }
+
+            var content = alrcConverter.ConvertBack(converter.Convert(request.Content));
+            lyric.Content = content;
+        }
+        
+        await repository.UpdateAsync(lyric, cancellationToken);
+        return Results.Ok(mapper.Map(lyric));
+    }
+    
     [Authorize(Roles = AuthRole.User)]
     private static async Task<IResult> PostLyric(
         [FromBody] LyricCreateRequest request,
@@ -80,7 +214,13 @@ public class LyricEndpoint : IEndpointBase
             Id = Guid.NewGuid(),
             CreateTime = DateTime.Now,
             Submitter = user,
-            Song = song
+            Duration = request.Duration,
+            Song = song,
+            Author = request.Author,
+            Proofreader = request.Proofreader,
+            Timeline = request.Timeline,
+            Translator = request.Translator,
+            Transliterator = request.Transliterator,
         };
         await repository.CreateAsync(lyric, cancellationToken);
         song.Lyrics.Add(lyric.Id);
@@ -88,6 +228,7 @@ public class LyricEndpoint : IEndpointBase
         return Results.Created($"/lyric/{lyric.Id}", mapper.Map(lyric));
     }
     
+    [Authorize(Roles = AuthRole.User)]
     private static async Task<IResult> PostLyricType(
         [FromRoute] string? type,
         [FromBody] LyricCreateRequest request,
@@ -125,7 +266,13 @@ public class LyricEndpoint : IEndpointBase
             Id = Guid.NewGuid(),
             CreateTime = DateTime.Now,
             Submitter = user,
-            Song = song
+            Duration = request.Duration,
+            Song = song,
+            Author = request.Author,
+            Proofreader = request.Proofreader,
+            Timeline = request.Timeline,
+            Translator = request.Translator,
+            Transliterator = request.Transliterator,
         };
         await repository.CreateAsync(lyric, cancellationToken);
         song.Lyrics.Add(lyric.Id);

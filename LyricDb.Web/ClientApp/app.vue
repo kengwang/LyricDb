@@ -25,4 +25,8 @@ a {
 a:hover {
   text-decoration: none;
 }
+
+.v-btn{
+  text-transform: none !important;
+}
 </style>

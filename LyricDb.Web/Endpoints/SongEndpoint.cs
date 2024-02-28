@@ -39,10 +39,14 @@ public class SongEndpoint : IEndpointBase
             .Produces<SongInfoResponse>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .WithName(nameof(PutSong));
-        group.Map("/{id:guid}/lyric", GetSongLyrics)
+        group.MapGet("/{id:guid}/lyric", GetSongLyrics)
             .Produces(StatusCodes.Status404NotFound)
             .Produces<List<LyricInfoResponse>>()
             .WithName(nameof(GetSongLyrics));
+        group.MapPut("/{id:guid}/lyric", SetSongLyric)
+            .Produces(StatusCodes.Status404NotFound)
+            .Produces(StatusCodes.Status200OK)
+            .WithName(nameof(SetSongLyric));
         group.MapGet("/bind/{bind}", GetSongByBind)
             .Produces(StatusCodes.Status404NotFound)
             .Produces<SongInfoResponse>()
@@ -54,18 +58,41 @@ public class SongEndpoint : IEndpointBase
             .WithName(nameof(DeleteSongById));
     }
     
+    [Authorize(Roles = AuthRole.Reviewer)]
+    private static async Task<IResult> SetSongLyric(
+        [FromRoute] Guid id,
+        [FromQuery] Guid lyricId,
+        [FromServices] IRepository<Song> repository,
+        [FromServices] IRepository<Lyric> lyricRepository,
+        [FromServices] IMapper<Song, SongInfoResponse> mapper,
+        CancellationToken cancellationToken = default)
+    {
+        var song = await repository.ReadAsync(id, cancellationToken);
+        if (song is null)
+            return Results.NotFound();
+        var lyric = await lyricRepository.ReadAsync(lyricId, cancellationToken);
+        if (lyric is null)
+            return Results.NotFound();
+        song.CurrentLyric = lyricId;
+        await repository.UpdateAsync(song, cancellationToken);
+        return Results.Ok(mapper.Map(song));
+    }
+    
 
     private static async Task<IResult> GetPagedSongs(
         [FromServices] IRepository<Song> repository,
         [FromServices] IMapper<Song, SongInfoResponse> mapper,
         [FromQuery] int page = 0,
         [FromQuery] int pageSize = 10,
+        [FromQuery] string search = "",
         CancellationToken cancellationToken = default)
     {
         var query = await repository.GetQueryableAsync(cancellationToken);
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(t => t.Name.Contains(search) || t.Album.Contains(search) || t.Artists.Contains(search));
         var total = await query.CountAsync(cancellationToken);
         var songs = await query
-            .OrderBy(t => t.CreateTime)
+            .OrderByDescending(t => t.CreateTime)
             .Skip(page * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
@@ -79,7 +106,7 @@ public class SongEndpoint : IEndpointBase
         });
     }
 
-    [Authorize(Roles = AuthRole.Admin)]
+    [Authorize(Roles = AuthRole.Reviewer)]
     private static async Task<IResult> DeleteSongById(
         Guid id, ClaimsPrincipal principal, IRepository<Song> repository, CancellationToken cancellationToken = default)
     {
@@ -103,7 +130,7 @@ public class SongEndpoint : IEndpointBase
         return song is null ? Results.NotFound() : Results.Ok(mapper.Map(song));
     }
 
-    [Authorize(Roles = AuthRole.User)]
+    [Authorize(Roles = AuthRole.Reviewer)]
     private static async Task<IResult> PutSong(
         [FromRoute] Guid id,
         SongPutRequest request,
@@ -134,7 +161,7 @@ public class SongEndpoint : IEndpointBase
         }
         
         await repository.UpdateAsync(song, cancellationToken);
-        return Results.Created($"/song/{song.Id}", mapper.Map(song));
+        return Results.Ok(mapper.Map(song));
     }
     
     [Authorize(Roles = AuthRole.User)]

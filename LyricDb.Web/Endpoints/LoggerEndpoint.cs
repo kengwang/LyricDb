@@ -19,6 +19,6 @@ public class LoggerEndpoint : IEndpointBase
 
     public static void ConfigureApp(WebApplication app)
     {
-        throw new NotImplementedException();
+        // ignore
     }
 }

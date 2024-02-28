@@ -2,10 +2,11 @@
 import {KnownMusicPlatforms} from "~/utils/Humanizer";
 let success = ref(false)
 let songId = ''
-let songInfo = ref({
+let songInfo = reactive({
   name: '',
   singer: '',
   album: '',
+  duration: 0,
   binds: [
     {
       platform: 'ncm',
@@ -14,7 +15,7 @@ let songInfo = ref({
   ]
 })
 
-let alertInfo = ref({
+let alertInfo = reactive({
   loading: false,
   message: '请注意：请确保歌曲信息无误后再提交',
   type: 'info'
@@ -25,29 +26,30 @@ function gotoSong(){
 }
 
 function submit() {
-  alertInfo.value.loading = true
+  alertInfo.loading = true
   let data = {
-    name: songInfo.value.name,
-    artists: songInfo.value.singer,
-    album: songInfo.value.album,
+    name: songInfo.name,
+    artists: songInfo.singer,
+    album: songInfo.album,
+    duration: songInfo.duration,
     binds: [] as Array<string>
   };
-  data.binds = songInfo.value.binds.map((bind) => {
+  data.binds = songInfo.binds.map((bind) => {
     return `${bind.platform}` + 'sg' + `${bind.id}`
   })
 
   useApi().song.postSong(data)
       .then((res) => {
-        alertInfo.value.message = '提交成功'
-        alertInfo.value.type = 'success'
+        alertInfo.message = '提交成功'
+        alertInfo.type = 'success'
         success.value = true
         songId = res.data.id!
       }).catch((err) => {
         console.log(err)
-        alertInfo.value.message = '提交失败: ' + err.response?.data?.message ? err.message : '未知错误'
-        alertInfo.value.type = 'error'
+        alertInfo.message = '提交失败: ' + err.response?.data?.message ? err.message : '未知错误'
+        alertInfo.type = 'error'
       }).finally(() => {
-        alertInfo.value.loading = false
+        alertInfo.loading = false
       });
 }
 
@@ -66,6 +68,7 @@ function submit() {
       <v-text-field v-model="songInfo.name" label="歌曲名称" outlined/>
       <v-text-field v-model="songInfo.singer" label="艺术家" outlined/>
       <v-text-field v-model="songInfo.album" label="专辑" outlined/>
+      <v-text-field v-model="songInfo.duration" label="时长 (毫秒)" outlined/>
       <v-row v-for="bind in songInfo.binds">
         <v-col cols="4">
           <v-select v-model="bind.platform" :items="KnownMusicPlatforms" density="compact" item-title="name"

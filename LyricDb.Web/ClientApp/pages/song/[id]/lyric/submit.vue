@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type {SongInfoDisplay} from "~/models/song";
-let song = ref({
+import type {AxiosResponse} from "axios";
+
+let song = reactive({
   id: '',
   name: '',
   artists: '',
@@ -8,16 +10,40 @@ let song = ref({
   cover: "https://via.placeholder.com/256x256.png?text=No+Cover"
 } as SongInfoDisplay)
 useApi().song.getSong(useRoute().params.id as string).then((res) => {
-  song.value.id = res.data.id!
-  lyricInfo.value.songId = song.value.id
-  song.value.name = res.data.name!
-  song.value.artists = res.data.artists!
-  song.value.album = res.data.album!
-  song.value.cover = res.data.cover ?? "https://via.placeholder.com/256x256.png?text=No+Cover"
-  alertInfo.value.loading = false
+  song.id = res.data.id!
+  lyricInfo.songId = song.id
+  song.name = res.data.name!
+  song.artists = res.data.artists!
+  song.album = res.data.album!
+  song.cover = res.data.cover ?? "https://via.placeholder.com/256x256.png?text=No+Cover"
+  alertInfo.loading = false
 }).catch((err) => {
   console.log(err)
 })
+
+if (useRoute().query.id) {
+  useApi().lyric.getLyric(useRoute().query.id as string).then((res) => {
+    lyricInfo.status = res.data.status ?? 0
+    lyricInfo.author = res.data.author ?? ''
+    lyricInfo.translator = res.data.translator ?? ''
+    lyricInfo.transliterator = res.data.transliterator ?? ''
+    lyricInfo.timeline = res.data.timeline ?? ''
+    lyricInfo.proofreader = res.data.proofreader ?? ''
+    useApi().lyric.getLyricContent(useRoute().query.id as string).then((res) => {
+      lyricInfo.lyrics = JSON.stringify(res.data)
+    }).catch((err) => {
+      console.log(err)
+    })
+  }).catch((err) => {
+    console.log(err)
+  })
+}
+
+let lyricStatusItems = reactive([
+  {text: '未审核', value: 0},
+  {text: '已审核', value: 1},
+  {text: '已拒绝', value: 2},
+])
 
 function modeToLanguage(mode: string) {
   switch (mode) {
@@ -30,28 +56,66 @@ function modeToLanguage(mode: string) {
   }
 }
 
-let lyricInfo = ref({
+let lyricInfo = reactive({
   songId: '',
   lyrics: '',
-  type: 'alrc'
+  status: 0,
+  author: '',
+  translator: '',
+  transliterator: '',
+  timeline: '',
+  proofreader: '',
+  type: 'alrc',
 })
 
-let alertInfo = ref({
+let alertInfo = reactive({
   loading: false,
   message: '欢迎您参与共建！请确保歌词信息无误后再提交',
   type: 'info'
 })
 
 function submit() {
-  alertInfo.value.loading = true
-  useApi().lyric.postLyricType(lyricInfo.value.type,{
-    songId: song.value.id,
-    content: lyricInfo.value.lyrics
-  }).then(() => {
-    alertInfo.value.type = 'success'
-    alertInfo.value.message = '提交成功！'
+  alertInfo.loading = true
+  let data = {
+    id: useRoute().query.id as string,
+    songId: song.id,
+    content: lyricInfo.lyrics,
+    author: lyricInfo.author,
+    translator: lyricInfo.translator,
+    transliterator: lyricInfo.transliterator,
+    timeline: lyricInfo.timeline,
+    proofreader: lyricInfo.proofreader,
+    status: lyricInfo.status
+  }
+  let promise: Promise<AxiosResponse<void>>
+  if (useRoute().query.id) {
+    data.status = lyricInfo.status
+    promise = useApi().lyric.putLyricType(lyricInfo.type,data)
+  } else {
+    promise = useApi().lyric.postLyricType(lyricInfo.type,data)
+  }
+  promise.then(() => {
+    alertInfo.type = 'success'
+    alertInfo.message = '提交成功！'
+  }).catch(()=>{
+    alertInfo.type = 'error'
+    alertInfo.message = '设置失败！'
   }).finally(() => {
-    alertInfo.value.loading = false
+    alertInfo.loading = false
+  })
+}
+
+function setMainLyric() {
+  alertInfo.loading = true
+  useApi().song.setSongLyric(lyricInfo.songId, {lyricId: useRoute().query.id as string}).then(() => {
+    alertInfo.type = 'success'
+    alertInfo.message = '设置成功！'
+  }).catch(()=>{
+    alertInfo.type = 'error'
+    alertInfo.message = '设置失败！'
+  }).finally(() => {
+    alertInfo.loading = false
+
   })
 }
 </script>
@@ -75,13 +139,37 @@ function submit() {
           v-model="lyricInfo.lyrics"
           :lang="modeToLanguage(lyricInfo.type)"
           style="height: 400px; width: 100%;"/>
+      <v-divider class="my-4"/>
+      <div class="my-2">歌词信息：</div>
+      <v-text-field
+          v-model="lyricInfo.author"
+          label="作者"/>
+      <v-text-field
+          v-model="lyricInfo.translator"
+          label="翻译"/>
+      <v-text-field
+          v-model="lyricInfo.transliterator"
+          label="音译者"/>
+      <v-text-field
+          v-model="lyricInfo.timeline"
+          label="时轴"/>
+      <v-text-field
+          v-model="lyricInfo.proofreader"
+          label="校对"/>
+      <v-select
+          :items="lyricStatusItems"
+          item-title="text"
+          item-value="value"
+          v-model="lyricInfo.status"
+          label="歌词状态"/>
+      <v-btn class="w-100 my-4" color="primary" v-if="useUserInfo().value.role >= 2" text="设为主歌词" @click="setMainLyric"/>
+      <v-divider class="my-4"/>
       <v-btn
-          class="w-100"
+          class="w-100 my-8"
           color="primary"
           text="提交"
           @click="submit"
       />
-      <v-divider class="my-4"/>
       <v-alert
           :type="alertInfo.type"
           dismissible

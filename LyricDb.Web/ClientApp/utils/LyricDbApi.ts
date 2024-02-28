@@ -98,6 +98,13 @@ export interface LyricCreateRequest {
   /** @format uuid */
   songId?: string;
   content?: string | null;
+  author?: string | null;
+  /** @format int32 */
+  duration?: number;
+  translator?: string | null;
+  transliterator?: string | null;
+  timeline?: string | null;
+  proofreader?: string | null;
 }
 
 export interface LyricInfoResponse {
@@ -107,8 +114,55 @@ export interface LyricInfoResponse {
   createTime?: string;
   submitter?: UserInfoResponse;
   song?: SongInfoResponse;
+  /** @format int32 */
+  duration?: number;
   reviewer?: UserInfoResponse;
-  approved?: boolean;
+  status?: LyricStatus;
+  author?: string | null;
+  translator?: string | null;
+  transliterator?: string | null;
+  timeline?: string | null;
+  proofreader?: string | null;
+}
+
+export interface LyricInfoResponsePagedResponseBase {
+  /** @format int32 */
+  page?: number;
+  /** @format int32 */
+  pageSize?: number;
+  /** @format int32 */
+  totalCount?: number;
+  /** @format int32 */
+  totalPages?: number;
+  hasPrevious?: boolean;
+  hasNext?: boolean;
+  previousPage?: string | null;
+  nextPage?: string | null;
+  items?: LyricInfoResponse[] | null;
+}
+
+export interface LyricPutRequest {
+  /** @format uuid */
+  id?: string;
+  /** @format uuid */
+  songId?: string;
+  content?: string | null;
+  /** @format int32 */
+  status?: number;
+  author?: string | null;
+  /** @format int32 */
+  duration?: number;
+  translator?: string | null;
+  transliterator?: string | null;
+  timeline?: string | null;
+  proofreader?: string | null;
+}
+
+/** @format int32 */
+export enum LyricStatus {
+  Value0 = 0,
+  Value1 = 1,
+  Value2 = 2,
 }
 
 export interface ProblemDetails {
@@ -347,6 +401,73 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * No description
      *
      * @tags LyricEndpoint
+     * @name GetPagedLyrics
+     * @request GET:/lyric
+     */
+    getPagedLyrics: (
+      query?: {
+        /**
+         * @format int32
+         * @default 0
+         */
+        page?: number;
+        /**
+         * @format int32
+         * @default 10
+         */
+        pageSize?: number;
+        /**
+         * @format int32
+         * @default -1
+         */
+        status?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<LyricInfoResponsePagedResponseBase, any>({
+        path: `/lyric`,
+        method: "GET",
+        query: query,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags LyricEndpoint
+     * @name PostLyric
+     * @request POST:/lyric
+     */
+    postLyric: (data: LyricCreateRequest, params: RequestParams = {}) =>
+      this.request<void, ProblemDetails | void>({
+        path: `/lyric`,
+        method: "POST",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags LyricEndpoint
+     * @name PutLyric
+     * @request PUT:/lyric
+     */
+    putLyric: (data: LyricPutRequest, params: RequestParams = {}) =>
+      this.request<void, ProblemDetails | void>({
+        path: `/lyric`,
+        method: "PUT",
+        body: data,
+        type: ContentType.Json,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags LyricEndpoint
      * @name GetLyric
      * @request GET:/lyric/{id}
      */
@@ -407,12 +528,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * No description
      *
      * @tags LyricEndpoint
-     * @name PostLyric
-     * @request POST:/lyric
+     * @name PostLyricType
+     * @request POST:/lyric/{type}
      */
-    postLyric: (data: LyricCreateRequest, params: RequestParams = {}) =>
-      this.request<void, ProblemDetails | void>({
-        path: `/lyric`,
+    postLyricType: (type: string, data: LyricCreateRequest, params: RequestParams = {}) =>
+      this.request<void, void | ProblemDetails>({
+        path: `/lyric/${type}`,
         method: "POST",
         body: data,
         type: ContentType.Json,
@@ -423,13 +544,13 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * No description
      *
      * @tags LyricEndpoint
-     * @name PostLyricType
-     * @request POST:/lyric/{type}
+     * @name PutLyricType
+     * @request PUT:/lyric/{type}
      */
-    postLyricType: (type: string, data: LyricCreateRequest, params: RequestParams = {}) =>
+    putLyricType: (type: string, data: LyricPutRequest, params: RequestParams = {}) =>
       this.request<void, void | ProblemDetails>({
         path: `/lyric/${type}`,
-        method: "POST",
+        method: "PUT",
         body: data,
         type: ContentType.Json,
         ...params,
@@ -455,6 +576,8 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
          * @default 10
          */
         pageSize?: number;
+        /** @default "" */
+        search?: string;
       },
       params: RequestParams = {},
     ) =>
@@ -527,6 +650,43 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/song/${id}`,
         method: "DELETE",
         format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags SongEndpoint
+     * @name GetSongLyrics
+     * @request GET:/song/{id}/lyric
+     */
+    getSongLyrics: (id: string, params: RequestParams = {}) =>
+      this.request<LyricInfoResponse[], void>({
+        path: `/song/${id}/lyric`,
+        method: "GET",
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags SongEndpoint
+     * @name SetSongLyric
+     * @request PUT:/song/{id}/lyric
+     */
+    setSongLyric: (
+      id: string,
+      query: {
+        /** @format uuid */
+        lyricId: string;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<void, void>({
+        path: `/song/${id}/lyric`,
+        method: "PUT",
+        query: query,
         ...params,
       }),
 

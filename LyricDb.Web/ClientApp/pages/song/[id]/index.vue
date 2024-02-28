@@ -24,7 +24,7 @@ class LyricInfoDisplay {
   createTime: string | undefined;
 }
 
-let lyrics = ref({
+let lyrics = reactive({
   submitter: {
     id: '',
     name: '未知用户',
@@ -32,50 +32,56 @@ let lyrics = ref({
   } as UserInfoResponse,
 } as LyricInfoDisplay)
 let id = useRoute().params.id as string
-let song = ref({} as SongInfoDisplay)
+let song = reactive({} as SongInfoDisplay)
 let loading = ref(true)
+
+function getLyricContent(lyricId: string) {
+  useApi().lyric.getLyricContent(lyricId).then((res) => {
+    let lyricContent = res.data
+    lyrics.content = []
+    lyricContent?.l?.map((line: ALRCLine) => {
+      lyrics.content.push(line.tx!)
+    })
+  })
+}
 
 function getLyric(lyricId: string) {
   useApi().lyric.getLyric(lyricId).then((res) => {
-    lyrics.value.submitter = {
+    lyrics.submitter = {
       id: res.data.submitter?.id!,
       name: res.data.submitter?.userName ?? "未知用户",
       avatar: `https://cravatar.cn/avatar/${res.data.submitter?.avatar}` ,
       role: res.data.submitter?.role!,
     }
-    lyrics.value.id = res.data.id!
-    let lyricContent = JSON.parse(res.data.content!) as ALRCFile
-    lyrics.value.createTime = res.data.createTime!
-    lyrics.value.content = []
-    lyricContent?.l?.map((line: ALRCLine) => {
-      lyrics.value.content.push(line.tx!)
-    })
+    lyrics.id = res.data.id!
+    lyrics.createTime = res.data.createTime!
+    getLyricContent(lyricId)
   }).catch((err) => {
     if (err.response.status === 404) {
-      lyrics.value.content = ['暂无歌词']
+      lyrics.content = ['暂无歌词']
       return
     }
-    lyrics.value.content = ['获取歌词失败']
+    lyrics.content = ['获取歌词失败']
   })
 }
 
 useApi().song.getSong(id).then((res) => {
-  song.value.id = res.data.id!
-  song.value.name = res.data.name!
-  song.value.artists = res.data.artists!
-  song.value.album = res.data.album!
-  song.value.cover = res.data.cover!
-  song.value.submitter = res.data.submitter!
-  song.value.createTime = res.data.createTime!
-  song.value.lyrics = res.data.lyrics!
-  song.value.currentLyric = res.data.currentLyric!
-  song.value.bindPlatforms = res.data.binds!.map((bind) => {
+  song.id = res.data.id!
+  song.name = res.data.name!
+  song.artists = res.data.artists!
+  song.album = res.data.album!
+  song.cover = res.data.cover!
+  song.submitter = res.data.submitter!
+  song.createTime = res.data.createTime!
+  song.lyrics = res.data.lyrics!
+  song.currentLyric = res.data.currentLyric!
+  song.bindPlatforms = res.data.binds!.map((bind) => {
     return {
       platform: bind.slice(0, 3),
       id: bind.slice(5),
     }
   })
-  getLyric(song.value.currentLyric)
+  getLyric(song.currentLyric)
 }).catch((err) => {
   console.log(err)
 }).finally(() => {
@@ -104,7 +110,7 @@ useApi().song.getSong(id).then((res) => {
             <NuxtLink :to="`/song/${song.id}/lyric/${song.currentLyric}`">当前歌词: {{ song.currentLyric }}</NuxtLink>
           </div>
           <div>
-            <NuxtLink :to="`/song/${song.id}/lyrics`">歌词历史: {{ song.lyrics?.length ?? 0 }} 个</NuxtLink>
+            <NuxtLink :to="`/song/${song.id}/lyric`">歌词历史: {{ song.lyrics?.length ?? 0 }} 个</NuxtLink>
           </div>
           <v-divider class="my-4"/>
           <div style="display: flex; flex-direction: row; align-self: center;"><span

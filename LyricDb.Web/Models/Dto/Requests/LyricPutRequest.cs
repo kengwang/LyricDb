@@ -1,9 +1,13 @@
-﻿namespace LyricDb.Web.Models.Dto.Requests;
+﻿using LyricDb.Web.Models.Dto.Responses;
 
-public class LyricCreateRequest
+namespace LyricDb.Web.Models.Dto.Requests;
+
+public class LyricPutRequest
 {
+    public Guid Id { get; set; }
     public Guid SongId { get; set; }
-    public required string Content { get; set; }
+    public string? Content { get; set; }
+    public int Status { get; set; }
     public string? Author { get; set; }
     public required int Duration { get; set; }
     public string? Translator { get; set; }
