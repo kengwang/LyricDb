@@ -1,10 +1,9 @@
 <script lang="ts" setup>
-import type {SongInfoDisplay} from "~/models/song";
 import type {LyricInfoResponse} from "~/utils/LyricDbApi";
 
 const context = reactive({
   loading: false,
-  status: 0,
+  status: -1,
   page: 1,
   totalPage: 0,
   total: 0,

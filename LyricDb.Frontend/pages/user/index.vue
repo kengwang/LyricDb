@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-// get current user info
 let userInfo = useUserInfo()
 if (!userInfo.value.isLogin) {
   useRouter().push('/user/login')

@@ -131,6 +131,8 @@ public class LyricEndpoint : IEndpointBase
         }
         
         await repository.UpdateAsync(lyric, cancellationToken);
+        user.ContributionPoint++;
+        await userManager.UpdateAsync(user);
         return Results.Ok(mapper.Map(lyric));
     }
     
@@ -183,6 +185,8 @@ public class LyricEndpoint : IEndpointBase
         }
         
         await repository.UpdateAsync(lyric, cancellationToken);
+        user.ContributionPoint++;
+        await userManager.UpdateAsync(user);
         return Results.Ok(mapper.Map(lyric));
     }
     
@@ -225,6 +229,8 @@ public class LyricEndpoint : IEndpointBase
         await repository.CreateAsync(lyric, cancellationToken);
         song.Lyrics.Add(lyric.Id);
         await songRepository.UpdateAsync(song, cancellationToken);
+        user.ContributionPoint++;
+        await userManager.UpdateAsync(user);
         return Results.Created($"/lyric/{lyric.Id}", mapper.Map(lyric));
     }
     
@@ -277,6 +283,8 @@ public class LyricEndpoint : IEndpointBase
         await repository.CreateAsync(lyric, cancellationToken);
         song.Lyrics.Add(lyric.Id);
         await songRepository.UpdateAsync(song, cancellationToken);
+        user.ContributionPoint++;
+        await userManager.UpdateAsync(user);
         return Results.Created($"/lyric/{lyric.Id}", mapper.Map(lyric));
     }
 

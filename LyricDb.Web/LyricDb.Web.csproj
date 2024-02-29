@@ -30,10 +30,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="ClientApp\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\LyricDb.Contracts\LyricDb.Contracts.csproj" />
     </ItemGroup>
 

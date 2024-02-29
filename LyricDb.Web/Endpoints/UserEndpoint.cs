@@ -61,6 +61,10 @@ public class UserEndpoint : IEndpointBase
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status200OK, typeof(UserInfoResponse))
             .WithName(nameof(PostLogin));
+        group.MapPost("/{userId:guid}/lyrics", GetUserPagedLyrics)
+            .ProducesProblem(StatusCodes.Status404NotFound)
+            .Produces<PagedResponseBase<LyricInfoResponse>>()
+            .WithName(nameof(GetUserPagedLyrics));
         group.MapGet("/{userId:guid}", GetUserInfo)
             .Produces(StatusCodes.Status200OK, typeof(UserInfoResponse))
             .ProducesProblem(StatusCodes.Status401Unauthorized)
@@ -83,6 +87,32 @@ public class UserEndpoint : IEndpointBase
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status404NotFound)
             .WithName(nameof(ConfirmEmail));
+    }
+    
+    private static async Task<IResult> GetUserPagedLyrics(
+        [FromServices] IRepository<Lyric> repository,
+        [FromServices] IMapper<Lyric, LyricInfoResponse> mapper,
+        [FromQuery] Guid userId,
+        [FromQuery] int page = 0,
+        [FromQuery] int pageSize = 10,
+        CancellationToken cancellationToken = default)
+    {
+        var query = await repository.GetQueryableAsync(cancellationToken);
+        query = query.Where(t => t.Submitter.Id == userId);
+        var total = await query.CountAsync(cancellationToken);
+        var lyrics = await query
+            .OrderByDescending(t => t.CreateTime)
+            .Skip(page * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+        return Results.Ok(new PagedResponseBase<LyricInfoResponse>
+        {
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = total,
+            TotalPages = (int) Math.Ceiling(total / (double) pageSize),
+            Items = lyrics.Select(mapper.Map).ToList()
+        });
     }
 
     private static async Task<IResult> ConfirmEmail(

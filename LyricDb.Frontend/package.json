@@ -28,9 +28,7 @@
     "vite-plugin-vuetify": "^2.0.1",
     "vue": "^3.4.19",
     "vue-router": "^4.3.0",
-    "vuetify": "^3.5.5"
-  },
-  "devDependencies": {
+    "vuetify": "^3.5.5",
     "monaco-editor": "0.33.0",
     "nuxt-monaco-editor": "^1.2.7"
   }

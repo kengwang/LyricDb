@@ -11,6 +11,7 @@ public class UserInfoResponse
     public required string UserName { get; set; }
     public required string Avatar { get; set; }
     public UserRole Role { get; set; }
+    public int ContributionPoint { get; set; }
 }
 
 [Mapper]

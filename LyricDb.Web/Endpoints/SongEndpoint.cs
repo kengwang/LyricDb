@@ -161,6 +161,8 @@ public class SongEndpoint : IEndpointBase
         }
         
         await repository.UpdateAsync(song, cancellationToken);
+        user.ContributionPoint++;
+        await userManager.UpdateAsync(user);
         return Results.Ok(mapper.Map(song));
     }
     
@@ -188,6 +190,8 @@ public class SongEndpoint : IEndpointBase
             Submitter = user
         };
         await repository.CreateAsync(song, cancellationToken);
+        user.ContributionPoint++;
+        await userManager.UpdateAsync(user);
         return Results.Created($"/song/{song.Id}", mapper.Map(song));
     }
 

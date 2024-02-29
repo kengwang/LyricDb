@@ -1,0 +1,17 @@
+version: '3'
+services:
+  backend:
+    build: LyricDb.Web
+    depends_on:
+      - worker
+    networks:
+      - backend
+  worker:
+    build: LyricDb.Worker
+  frontend:
+    image: LyricDb.Frontend
+    depends_on:
+      - backend
+networks:
+  - backend
+  - frontend

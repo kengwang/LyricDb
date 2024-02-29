@@ -229,6 +229,8 @@ export interface UserInfoResponse {
   userName?: string | null;
   avatar?: string | null;
   role?: UserRole;
+  /** @format int32 */
+  contributionPoint?: number;
 }
 
 export interface UserLoginRequest {
@@ -735,6 +737,39 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags UserEndpoint
+     * @name GetUserPagedLyrics
+     * @request POST:/user/{userId}/lyrics
+     */
+    getUserPagedLyrics: (
+      userId: string,
+      query: {
+        /** @format uuid */
+        userId: string;
+        /**
+         * @format int32
+         * @default 0
+         */
+        page?: number;
+        /**
+         * @format int32
+         * @default 10
+         */
+        pageSize?: number;
+      },
+      params: RequestParams = {},
+    ) =>
+      this.request<LyricInfoResponsePagedResponseBase, ProblemDetails>({
+        path: `/user/${userId}/lyrics`,
+        method: "POST",
+        query: query,
         format: "json",
         ...params,
       }),
