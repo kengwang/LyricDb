@@ -1,0 +1,23 @@
+﻿on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 8.0.x
+      - name: Install dependencies
+        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore
+      - name: Build NuGet Package
+        run: dotnet pack LyricDb.Contracts/LyricDb.Contracts.csproj -c Release -o Packages/
+      - name: Publish To Github Package
+        run: |
+          dotnet nuget add source --username kengwang --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/kengwang/index.json"
+          dotnet nuget push "Packages/*.nupkg" --source "github" --skip-duplicate
