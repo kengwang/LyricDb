@@ -1,12 +1,12 @@
-﻿FROM mcr.microsoft.com/dotnet/runtime:6.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/runtime:8.0 AS base
+USER $APP_UID
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["LyricDb.Worker/LyricDb.Worker.csproj", "LyricDb.Worker/"]
+COPY . "LyricDb.Worker"
 RUN dotnet restore "LyricDb.Worker/LyricDb.Worker.csproj"
-COPY . .
 WORKDIR "/src/LyricDb.Worker"
 RUN dotnet build "LyricDb.Worker.csproj" -c $BUILD_CONFIGURATION -o /app/build
 

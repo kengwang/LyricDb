@@ -9,9 +9,10 @@ services:
   worker:
     build: LyricDb.Worker
   frontend:
-    image: LyricDb.Frontend
+    build: LyricDb.Frontend
     depends_on:
       - backend
 networks:
-  - backend
-  - frontend
+  backend: 
+    
+  frontend:
