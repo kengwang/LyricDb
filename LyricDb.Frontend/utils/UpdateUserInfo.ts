@@ -11,6 +11,7 @@ export function updateUserInfo() {
             }
         }).catch(() => {
         let userInfo = useUserInfo()
+        userInfo.value.isLogin = false as boolean
         userInfo.value = {
             id: '',
             name: "登录",
