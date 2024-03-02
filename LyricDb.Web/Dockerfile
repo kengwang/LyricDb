@@ -8,10 +8,10 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["LyricDb.Web/LyricDb.Web.csproj", "LyricDb.Web/"]
+COPY ["LyricDb.Web.csproj", "LyricDb.Web/"]
 RUN dotnet nuget add source https://nuget.pkg.github.com/kengwang/index.json -n github -u kengwang -p $GITHUB_TOKEN --store-password-in-clear-text
 RUN dotnet restore "LyricDb.Web/LyricDb.Web.csproj"
-COPY . .
+COPY [".", "LyricDb.Web/"]
 WORKDIR "/src/LyricDb.Web"
 RUN dotnet build "LyricDb.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
