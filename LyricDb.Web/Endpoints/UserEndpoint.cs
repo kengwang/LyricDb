@@ -284,12 +284,18 @@ public class UserEndpoint : IEndpointBase
         [FromServices] IMessageBus messageBus,
         CancellationToken cancellationToken = default)
     {
+        StringBuilder avatarSb = new();
+        var avatarMd5Arr = MD5.HashData(Encoding.UTF8.GetBytes(request.Email));
+        for (int i = 0; i < avatarMd5Arr.Length; i++)
+        {
+            avatarSb.Append(avatarMd5Arr[i].ToString("x2"));
+        }
         var user = new User
         {
             UserName = request.Name,
             Email = request.Email,
             Role = UserRole.None,
-            Avatar = Encoding.UTF8.GetString(MD5.HashData(Encoding.UTF8.GetBytes(request.Email)))
+            Avatar = avatarSb.ToString()
         };
         var result = await userManager.CreateAsync(user, request.Password);
         if (result.Succeeded)

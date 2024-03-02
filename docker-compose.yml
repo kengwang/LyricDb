@@ -1,30 +1,47 @@
 version: '3'
 services:
+  db:
+    image: postgres:latest
+    restart: always
+    networks:
+      - backend
+    environment:
+      POSTGRES_DB: lyricdb
+      POSTGRES_USER: lyricdb
+      POSTGRES_PASSWORD: lyricdb
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data:/var/lib/postgresql/data
   backend:
-    image: ghcr.io/kengwang/lyricdb-backend:beta-0.0.2
+    restart: always
+    image: ghcr.dockerproxy.com/kengwang/lyricdb-backend:beta-0.0.2
     ports:
       - "17630:8080"
     depends_on:
       - worker
+      - db
     networks:
       - backend
     environment:
-      - ConnectionStrings__Postgres="Host=lyricdb-postgres;Port=5432;Database=lyricdb;Username=lyricdb;Password=lyricdb"
+      - ConnectionStrings__Postgres=Host=db;Port=5432;Database=lyricdb;Username=lyricdb;Password=lyricdb
       - Wolverine__Web=17757
       - Wolverine__Worker=17758
   worker:
-    image: ghcr.io/kengwang/lyricdb-worker:beta-0.0.2
+    restart: always
+    image: ghcr.dockerproxy.com/kengwang/lyricdb-worker:beta-0.0.2
     networks:
       - backend
     environment:
       - Wolverine__Web=17757
       - Wolverine__Worker=17758
   frontend:
-    image: ghcr.io/kengwang/lyricdb-frontend:beta-0.0.2
+    restart: always
+    image: ghcr.dockerproxy.com/kengwang/lyricdb-frontend:beta-0.0.2
     depends_on:
       - backend
     ports:
       - "17631:3000"
+
 networks:
   backend:
   
