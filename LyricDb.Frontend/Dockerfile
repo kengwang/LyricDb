@@ -15,5 +15,5 @@ RUN npm run build
 # Final
 FROM base as final
 WORKDIR /app
-COPY --from=publish .output .
-CMD ["node", "server/index.mjs"]
+COPY --from=publish /src/.output .
+ENTRYPOINT ["node", "server/index.mjs"]
