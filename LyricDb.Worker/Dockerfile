@@ -1,5 +1,4 @@
-﻿ARG GITHUB_TOKEN
-FROM mcr.microsoft.com/dotnet/runtime:8.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/runtime:8.0 AS base
 USER $APP_UID
 WORKDIR /app
 
@@ -7,6 +6,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY . "LyricDb.Worker"
+ARG GITHUB_TOKEN
 RUN dotnet nuget add source https://nuget.pkg.github.com/kengwang/index.json --store-password-in-clear-text -n github -u kengwang -p $GITHUB_TOKEN
 RUN dotnet restore "LyricDb.Worker/LyricDb.Worker.csproj"
 WORKDIR "/src/LyricDb.Worker"
