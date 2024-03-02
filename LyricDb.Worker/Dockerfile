@@ -7,7 +7,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY . "LyricDb.Worker"
-RUN dotnet nuget add source https://nuget.pkg.github.com/kengwang/index.json -n github -u kengwang -p $GITHUB_TOKEN --store-password-in-clear-text
+RUN dotnet nuget add source https://nuget.pkg.github.com/kengwang/index.json --store-password-in-clear-text -n github -u kengwang -p $GITHUB_TOKEN
 RUN dotnet restore "LyricDb.Worker/LyricDb.Worker.csproj"
 WORKDIR "/src/LyricDb.Worker"
 RUN dotnet build "LyricDb.Worker.csproj" -c $BUILD_CONFIGURATION -o /app/build
