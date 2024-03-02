@@ -4,6 +4,7 @@ using Wolverine;
 using Wolverine.Transports.Tcp;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddHttpContextAccessor();
 builder.AddEndpoint<LoggerEndpoint>();
 builder.AddEndpoint<DatabaseEndpoint>();

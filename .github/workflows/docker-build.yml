@@ -1,8 +1,8 @@
 ﻿name: Docker Image Build
 on:
-  push: 
-    branches:
-      - main
+  push:
+    tags:
+      - '*'
 jobs:
   build-backend:
     runs-on: ubuntu-latest
@@ -15,8 +15,8 @@ jobs:
       - name: Build and push
         run: |
           cd LyricDb.Web
-          docker build . -t ghcr.io/kengwang/lyricdb-backend:${{ github.sha }} --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          docker push ghcr.io/kengwang/lyricdb-backend:${{ github.sha }}
+          docker build . -t ghcr.io/kengwang/lyricdb-backend:${{ github.ref_name }} --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          docker push ghcr.io/kengwang/lyricdb-backend:${{ github.ref_name }}
   build-worker:
     runs-on: ubuntu-latest
     steps:
@@ -28,8 +28,8 @@ jobs:
       - name: Build and push
         run: |
           cd LyricDb.Worker
-          docker build . -t ghcr.io/kengwang/lyricdb-worker:${{ github.sha }} --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          docker push ghcr.io/kengwang/lyricdb-worker:${{ github.sha }}
+          docker build . -t ghcr.io/kengwang/lyricdb-worker:${{ github.ref_name }} --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          docker push ghcr.io/kengwang/lyricdb-worker:${{ github.ref_name }}
   build-frontend:
     runs-on: ubuntu-latest
     steps:
@@ -41,5 +41,5 @@ jobs:
       - name: Build and push
         run: |
           cd LyricDb.Frontend
-          docker build . -t ghcr.io/kengwang/lyricdb-frontend:${{ github.sha }} --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
-          docker push ghcr.io/kengwang/lyricdb-frontend:${{ github.sha }}
+          docker build . -t ghcr.io/kengwang/lyricdb-frontend:${{ github.ref_name }} --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          docker push ghcr.io/kengwang/lyricdb-frontend:${{ github.ref_name }}

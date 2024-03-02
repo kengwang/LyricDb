@@ -1,7 +1,7 @@
 version: '3'
 services:
   backend:
-    image: ghcr.io/kengwang/lyricdb-backend:latest
+    image: ghcr.nju.edu.cn/kengwang/lyricdb-backend:latest
     ports:
       - "17630:5140"
     depends_on:
@@ -9,18 +9,18 @@ services:
     networks:
       - backend
     environment:
-      - ConnectionStrings__Postgres=Host=lyricdb-postgres;Port=5432;Database=lyricdb;Username=lyricdb;Password=lyricdb"
+      - ConnectionStrings__Postgres=Host=1Panel-postgresql-Br8o;Port=5432;Database=lyricdb;Username=user_DETQwf;Password=password_kfecPz"
       - Wolverine__Web=17757
       - Wolverine__Worker=17758
   worker:
-    image: ghcr.io/kengwang/lyricdb-worker:latest
+    image: ghcr.nju.edu.cn/kengwang/lyricdb-worker:latest
     networks:
       - backend
     environment:
       - Wolverine__Web=17757
       - Wolverine__Worker=17758
   frontend:
-    image: ghcr.io/kengwang/lyricdb-frontend:latest
+    image: ghcr.nju.edu.cn/kengwang/lyricdb-frontend:latest
     depends_on:
       - backend
     ports:
