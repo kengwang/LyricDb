@@ -1,9 +1,10 @@
-﻿on:
+﻿name: Dependency Package Build
+on:
   push:
     branches:
       - main
 jobs:
-  build:
+  contracts-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -11,6 +12,8 @@ jobs:
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: 8.0.x
+      - name: Go to dependency Directory
+        run: cd LyricDb.Contracts
       - name: Install dependencies
         run: dotnet restore
       - name: Build

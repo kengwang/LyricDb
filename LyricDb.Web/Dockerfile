@@ -1,4 +1,5 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+﻿ARG GITHUB_TOKEN
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER $APP_UID
 WORKDIR /app
 EXPOSE 8080
@@ -8,6 +9,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["LyricDb.Web/LyricDb.Web.csproj", "LyricDb.Web/"]
+RUN dotnet nuget add source https://nuget.pkg.github.com/kengwang/index.json -n github -u kengwang -p $GITHUB_TOKEN --store-password-in-clear-text
 RUN dotnet restore "LyricDb.Web/LyricDb.Web.csproj"
 COPY . .
 WORKDIR "/src/LyricDb.Web"
