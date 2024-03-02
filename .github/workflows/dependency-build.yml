@@ -15,9 +15,9 @@ jobs:
       - name: Go to dependency Directory
         run: cd LyricDb.Contracts
       - name: Install dependencies
-        run: dotnet restore
+        run: dotnet restore LyricDb.Contracts/LyricDb.Contracts.csproj
       - name: Build
-        run: dotnet build --no-restore
+        run: dotnet build --no-restore LyricDb.Contracts/LyricDb.Contracts.csproj
       - name: Build NuGet Package
         run: dotnet pack LyricDb.Contracts/LyricDb.Contracts.csproj -c Release -o Packages/
       - name: Publish To Github Package

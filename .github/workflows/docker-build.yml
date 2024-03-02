@@ -14,6 +14,6 @@ jobs:
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u kengwang --password-stdin
       - name: Build and push
         run: |
-          cd LyricDb.Backend
+          cd LyricDb.Web
           docker build . -t ghcr.io/kengwang/lyricdb-backend:latest --build-arg GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           docker push ghcr.io/kengwang/lyricdb-backend:$(date +%s)
