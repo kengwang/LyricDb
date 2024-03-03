@@ -1,6 +1,7 @@
 ﻿name: Dependency Package Build
 on:
   push:
+    branches: [ "*" ]
     paths:
       - 'LyricDb.Contracts/**'
 jobs:

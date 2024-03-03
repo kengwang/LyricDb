@@ -17,15 +17,18 @@ builder.AddEndpoint<ALRCEndpoint>();
 builder.Host.UseWolverine(
     (context, options) =>
     {
-        options.PublishAllMessages().ToServerAndPort(context.Configuration.GetValue<string>("Wolverine:Worker:Server")??"localhost", context.Configuration.GetValue<int>("Wolverine:Worker:Port"));
+        options.OptimizeArtifactWorkflow();
+        options.PublishAllMessages()
+            .ToServerAndPort(context.Configuration.GetValue<string>("Wolverine:Worker:Host") ?? "localhost",
+                context.Configuration.GetValue<int>("Wolverine:Worker:Port"));
         options.ListenAtPort(context.Configuration.GetValue<int>("Wolverine:Web"));
     }
-); 
+);
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(config =>
     {
-        config.SetIsOriginAllowed(t=>true);
+        config.SetIsOriginAllowed(t => true);
         config.AllowCredentials();
         config.AllowAnyHeader();
         config.AllowAnyMethod();
