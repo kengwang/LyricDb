@@ -1,8 +1,8 @@
 ﻿name: Dependency Package Build
 on:
   push:
-    branches:
-      - main
+    paths:
+      - 'LyricDb.Contracts/**'
 jobs:
   contracts-build:
     runs-on: ubuntu-latest

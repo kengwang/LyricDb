@@ -11,7 +11,6 @@ public class LyricInfoResponse
     public required DateTime CreateTime { get; set; }
     public required UserInfoResponse Submitter { get; set; }
     public required SongInfoResponse Song { get; set; }
-    public required int Duration { get; set; }
     public UserInfoResponse? Reviewer { get; set; }
     public LyricStatus Status { get; set; }
     public string? Author { get; set; }

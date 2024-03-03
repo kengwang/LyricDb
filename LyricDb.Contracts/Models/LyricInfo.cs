@@ -9,7 +9,6 @@ public class LyricInfo
     public required DateTime CreateTime { get; set; }
     public required UserInfo Submitter { get; set; }
     public required SongInfo Song { get; set; }
-    public required int Duration { get; set; }
     public UserInfo? Reviewer { get; set; }
     public LyricStatus Status { get; set; }
     public string? Author { get; set; }
