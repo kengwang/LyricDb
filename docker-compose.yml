@@ -5,7 +5,10 @@ services:
     restart: always
     networks:
       - backend
-    
+    ports:
+      - "0:5672"
+      - "0:15672"
+  
   db:
     image: postgres:latest
     restart: always
@@ -20,7 +23,7 @@ services:
       - ./data:/var/lib/postgresql/data
   backend:
     restart: always
-    image: ghcr.dockerproxy.com/kengwang/lyricdb-backend:beta-0.1.4
+    image: ghcr.dockerproxy.com/kengwang/lyricdb-backend:beta-0.1.6
     ports:
       - "17630:8080"
     depends_on:
@@ -34,7 +37,7 @@ services:
       - RabbitMQ__Host=rabbitmq
   worker:
     restart: always
-    image: ghcr.dockerproxy.com/kengwang/lyricdb-worker:beta-0.1.4
+    image: ghcr.dockerproxy.com/kengwang/lyricdb-worker:beta-0.1.6
     networks:
       - backend
     environment:
@@ -43,7 +46,7 @@ services:
       - rabbitmq
   frontend:
     restart: always
-    image: ghcr.dockerproxy.com/kengwang/lyricdb-frontend:beta-0.1.4
+    image: ghcr.dockerproxy.com/kengwang/lyricdb-frontend:beta-0.1.6
     depends_on:
       - backend
     ports:

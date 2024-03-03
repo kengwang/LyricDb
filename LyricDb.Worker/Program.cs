@@ -25,10 +25,10 @@ builder.UseWolverine((context, options) =>
 {
     options.UseRabbitMq(rabbit =>
     {
-        rabbit.Uri = new Uri("amqp://guest:guest@rabbitmq:5672/");
+        rabbit.HostName = context.Configuration.GetValue<string>("RabbitMQ:HostName");
     }).AutoProvision();
-    options.ListenToRabbitQueue("lyricdb");
-    options.PublishAllMessages().ToRabbitExchange("lyricdb");
+    options.ListenToRabbitQueue("lyricdb-worker");
+    options.PublishAllMessages().ToRabbitExchange("lyricdb-backend");
 });
 builder.ConfigureServices((_, services) =>
 {
