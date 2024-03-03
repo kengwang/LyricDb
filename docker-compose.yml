@@ -1,5 +1,10 @@
 version: '3'
 services:
+  rabbitmq:
+    image: rabbitmq
+    restart: always
+    networks:
+      - backend
   db:
     image: postgres:latest
     restart: always
@@ -24,18 +29,14 @@ services:
       - backend
     environment:
       - ConnectionStrings__Postgres=Host=db;Port=5432;Database=lyricdb;Username=lyricdb;Password=lyricdb
-      - Wolverine__Web=17757
-      - Wolverine__Worker__Host=worker
-      - Wolverine__Worker__Port=17758
+      - RabbitMQ__Host=rabbitmq
   worker:
     restart: always
     image: ghcr.dockerproxy.com/kengwang/lyricdb-worker:beta-0.1.0
     networks:
       - backend
     environment:
-      - Wolverine__Web__Host=backend
-      - Wolverine__Web__Port=17757
-      - Wolverine__Worker=17758
+      - RabbitMQ__Host=rabbitmq
   frontend:
     restart: always
     image: ghcr.dockerproxy.com/kengwang/lyricdb-frontend:beta-0.1.0

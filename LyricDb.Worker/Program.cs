@@ -5,6 +5,7 @@ using MailKit.Security;
 using Oakton;
 using Serilog;
 using Wolverine;
+using Wolverine.RabbitMQ;
 using Wolverine.Transports.Tcp;
 
 var builder = Host.CreateDefaultBuilder(args);
@@ -13,9 +14,8 @@ builder.ConfigureLogging(loggerBuilder =>
     Log.Logger = new LoggerConfiguration()
 #if !DEBUG
         .WriteTo.File("log/log.log", rollingInterval: RollingInterval.Day)
-#else
-        .WriteTo.Console()
 #endif
+        .WriteTo.Console()
         .CreateLogger();
     loggerBuilder.ClearProviders();
     loggerBuilder.AddSerilog(Log.Logger);
@@ -23,8 +23,12 @@ builder.ConfigureLogging(loggerBuilder =>
 
 builder.UseWolverine((context, options) =>
 {
-    options.ListenAtPort(context.Configuration.GetValue<int>("Wolverine:Worker"));
-    options.PublishAllMessages().ToServerAndPort(context.Configuration.GetValue<string>("Wolverine:Web:Host")??"localhost", context.Configuration.GetValue<int>("Wolverine:Web:Port"));
+    options.UseRabbitMq(rabbit =>
+    {
+        rabbit.HostName = context.Configuration.GetValue<string>("RabbitMQ:Host") ?? "localhost";
+    }).AutoProvision();
+    options.ListenToRabbitQueue("lyricdb");
+    options.PublishAllMessages().ToRabbitExchange("lyricdb");
 });
 builder.ConfigureServices((_, services) =>
 {

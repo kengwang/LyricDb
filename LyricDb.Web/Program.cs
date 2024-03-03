@@ -1,6 +1,7 @@
 using LyricDb.Web.Endpoints;
 using LyricDb.Web.Extensions;
 using Wolverine;
+using Wolverine.RabbitMQ;
 using Wolverine.Transports.Tcp;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,11 +18,12 @@ builder.AddEndpoint<ALRCEndpoint>();
 builder.Host.UseWolverine(
     (context, options) =>
     {
-        options.OptimizeArtifactWorkflow();
-        options.PublishAllMessages()
-            .ToServerAndPort(context.Configuration.GetValue<string>("Wolverine:Worker:Host") ?? "localhost",
-                context.Configuration.GetValue<int>("Wolverine:Worker:Port"));
-        options.ListenAtPort(context.Configuration.GetValue<int>("Wolverine:Web"));
+        options.UseRabbitMq(rabbit =>
+        {
+            rabbit.HostName = context.Configuration.GetValue<string>("RabbitMQ:Host") ?? "localhost";
+        }).AutoProvision();
+        options.ListenToRabbitQueue("lyricdb");
+        options.PublishAllMessages().ToRabbitExchange("lyricdb");
     }
 );
 builder.Services.AddCors(options =>
