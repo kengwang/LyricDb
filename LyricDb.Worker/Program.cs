@@ -24,7 +24,7 @@ builder.ConfigureLogging(loggerBuilder =>
 builder.UseWolverine((context, options) =>
 {
     options.ListenAtPort(context.Configuration.GetValue<int>("Wolverine:Worker"));
-    options.PublishAllMessages().ToPort(context.Configuration.GetValue<int>("Wolverine:Web"));
+    options.PublishAllMessages().ToServerAndPort(context.Configuration.GetValue<string>("Wolverine:Web:Host")??"localhost", context.Configuration.GetValue<int>("Wolverine:Web:Port"));
 });
 builder.ConfigureServices((_, services) =>
 {

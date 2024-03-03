@@ -14,7 +14,7 @@ services:
       - ./data:/var/lib/postgresql/data
   backend:
     restart: always
-    image: ghcr.dockerproxy.com/kengwang/lyricdb-backend:beta-0.0.2
+    image: ghcr.dockerproxy.com/kengwang/lyricdb-backend:beta-0.1.0
     ports:
       - "17630:8080"
     depends_on:
@@ -25,18 +25,20 @@ services:
     environment:
       - ConnectionStrings__Postgres=Host=db;Port=5432;Database=lyricdb;Username=lyricdb;Password=lyricdb
       - Wolverine__Web=17757
-      - Wolverine__Worker=17758
+      - Wolverine__Worker__Host=worker
+      - Wolverine__Worker__Port=17758
   worker:
     restart: always
-    image: ghcr.dockerproxy.com/kengwang/lyricdb-worker:beta-0.0.2
+    image: ghcr.dockerproxy.com/kengwang/lyricdb-worker:beta-0.1.0
     networks:
       - backend
     environment:
-      - Wolverine__Web=17757
+      - Wolverine__Web__Host=backend
+      - Wolverine__Web__Port=17757
       - Wolverine__Worker=17758
   frontend:
     restart: always
-    image: ghcr.dockerproxy.com/kengwang/lyricdb-frontend:beta-0.0.2
+    image: ghcr.dockerproxy.com/kengwang/lyricdb-frontend:beta-0.1.0
     depends_on:
       - backend
     ports:
