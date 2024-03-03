@@ -56,11 +56,14 @@ function doRegister() {
       <v-text-field v-model="registerInfo.email" type="email" label="邮箱" variant="outlined"/>
       <v-text-field v-model="registerInfo.password" label="密码" type="password" variant="outlined"></v-text-field>
     </div>
-    <v-card-actions>
-      <v-spacer></v-spacer>
+    <div>
+
       <v-btn class="w-100" color="primary" variant="tonal" @click="doRegister" :disabled="alertInfo.loading">注册</v-btn>
-    </v-card-actions>
-    <v-alert :text="alertInfo.message" :title="alertInfo.title" :type="alertInfo.type" class="mt-8" />
+      <NuxtLink to="/user/login">
+        <v-btn class="float-right my-4" variant="plain" color="primary" text="前往登录"/>
+      </NuxtLink>
+    </div>
+    <v-alert :text="alertInfo.message" :title="alertInfo.title" :type="alertInfo.type" class="w-100 mt-8" />
   </v-card>
 </template>
 

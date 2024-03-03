@@ -57,11 +57,15 @@ function doLogin() {
       <v-text-field v-model="loginInfo.account" label="用户名" variant="outlined"/>
       <v-text-field v-model="loginInfo.password" label="密码" type="password" variant="outlined"></v-text-field>
     </div>
-    <v-card-actions>
-      <v-spacer></v-spacer>
+    <div>
       <v-btn :disabled="alertInfo.loading" class="w-100" color="primary" variant="tonal" @click="doLogin">登录</v-btn>
-    </v-card-actions>
-    <v-alert :text="alertInfo.message" :title="alertInfo.title" :type="alertInfo.type" class="mt-8"/>
+    </div>
+    <NuxtLink to="/user/register">
+      <v-btn class="float-right my-8" variant="plain" color="primary" text="前往注册"/>
+    </NuxtLink>
+    <div>
+      <v-alert :text="alertInfo.message" :title="alertInfo.title" :type="alertInfo.type" class="mt-8 w-100"/>
+    </div>
   </v-card>
 </template>
 
