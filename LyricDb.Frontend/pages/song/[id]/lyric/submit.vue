@@ -57,6 +57,7 @@ function modeToLanguage(mode: string) {
 }
 
 let lyricInfo = reactive({
+  lyricId: useRoute().query.id ?? '',
   songId: '',
   lyrics: '',
   status: 0,
@@ -87,17 +88,18 @@ function submit() {
     proofreader: lyricInfo.proofreader,
     status: lyricInfo.status
   }
-  let promise: Promise<AxiosResponse<void>>
+  let promise: Promise<AxiosResponse<LyricInfoResponse>>
   if (useRoute().query.id) {
     data.status = lyricInfo.status
-    promise = useApi().lyric.putLyricType(lyricInfo.type,data)
+    promise = useApi().lyric.putLyricType(lyricInfo.type, data)
   } else {
-    promise = useApi().lyric.postLyricType(lyricInfo.type,data)
+    promise = useApi().lyric.postLyricType(lyricInfo.type, data)
   }
-  promise.then(() => {
+  promise.then((res) => {
+    lyricInfo.lyricId = res.data.id!
     alertInfo.type = 'success'
     alertInfo.message = '提交成功！'
-  }).catch(()=>{
+  }).catch(() => {
     alertInfo.type = 'error'
     alertInfo.message = '设置失败！'
   }).finally(() => {
@@ -107,10 +109,10 @@ function submit() {
 
 function setMainLyric() {
   alertInfo.loading = true
-  useApi().song.setSongLyric(lyricInfo.songId, {lyricId: useRoute().query.id as string}).then(() => {
+  useApi().song.setSongLyric(lyricInfo.songId, {lyricId: lyricInfo.lyricId as string}).then(() => {
     alertInfo.type = 'success'
     alertInfo.message = '设置成功！'
-  }).catch(()=>{
+  }).catch(() => {
     alertInfo.type = 'error'
     alertInfo.message = '设置失败！'
   }).finally(() => {
@@ -157,12 +159,13 @@ function setMainLyric() {
           v-model="lyricInfo.proofreader"
           label="校对"/>
       <v-select
+          v-model="lyricInfo.status"
           :items="lyricStatusItems"
           item-title="text"
           item-value="value"
-          v-model="lyricInfo.status"
           label="歌词状态"/>
-      <v-btn class="w-100 my-4" color="primary" v-if="useUserInfo().value.role >= 2" text="设为主歌词" @click="setMainLyric"/>
+      <v-btn v-if="useUserInfo().value.role >= 2" class="w-100 my-4" color="primary" text="设为主歌词"
+             @click="setMainLyric"/>
       <v-divider class="my-4"/>
       <v-btn
           class="w-100 my-8"

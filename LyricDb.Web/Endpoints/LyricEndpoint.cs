@@ -47,24 +47,24 @@ public class LyricEndpoint : IEndpointBase
         group.MapPost("", PostLyric)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status200OK)
+            .Produces<LyricInfoResponse>(StatusCodes.Status201Created)
             .WithName(nameof(PostLyric));
         group.MapPost("/{type}", PostLyricType)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status201Created)
+            .Produces<LyricInfoResponse>(StatusCodes.Status201Created)
             .WithName(nameof(PostLyricType));
         group.MapPut("", PutLyric)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
-            .Produces(StatusCodes.Status200OK)
+            .Produces<LyricInfoResponse>()
             .WithName(nameof(PutLyric));
         group.MapPut("/{type}", PutLyricType)
             .ProducesProblem(StatusCodes.Status401Unauthorized)
             .Produces(StatusCodes.Status404NotFound)
             .Produces(StatusCodes.Status400BadRequest)
-            .Produces(StatusCodes.Status201Created)
+            .Produces<LyricInfoResponse>()
             .WithName(nameof(PutLyricType));
     }
     

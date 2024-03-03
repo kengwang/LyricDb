@@ -99,8 +99,6 @@ export interface LyricCreateRequest {
   songId?: string;
   content?: string | null;
   author?: string | null;
-  /** @format int32 */
-  duration?: number;
   translator?: string | null;
   transliterator?: string | null;
   timeline?: string | null;
@@ -114,8 +112,6 @@ export interface LyricInfoResponse {
   createTime?: string;
   submitter?: UserInfoResponse;
   song?: SongInfoResponse;
-  /** @format int32 */
-  duration?: number;
   reviewer?: UserInfoResponse;
   status?: LyricStatus;
   author?: string | null;
@@ -150,8 +146,6 @@ export interface LyricPutRequest {
   /** @format int32 */
   status?: number;
   author?: string | null;
-  /** @format int32 */
-  duration?: number;
   translator?: string | null;
   transliterator?: string | null;
   timeline?: string | null;
@@ -448,11 +442,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/lyric
      */
     postLyric: (data: LyricCreateRequest, params: RequestParams = {}) =>
-      this.request<void, ProblemDetails | void>({
+      this.request<LyricInfoResponse, ProblemDetails | void>({
         path: `/lyric`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -464,11 +459,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request PUT:/lyric
      */
     putLyric: (data: LyricPutRequest, params: RequestParams = {}) =>
-      this.request<void, ProblemDetails | void>({
+      this.request<LyricInfoResponse, ProblemDetails | void>({
         path: `/lyric`,
         method: "PUT",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -540,11 +536,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request POST:/lyric/{type}
      */
     postLyricType: (type: string, data: LyricCreateRequest, params: RequestParams = {}) =>
-      this.request<void, void | ProblemDetails>({
+      this.request<LyricInfoResponse, void | ProblemDetails>({
         path: `/lyric/${type}`,
         method: "POST",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
 
@@ -556,11 +553,12 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
      * @request PUT:/lyric/{type}
      */
     putLyricType: (type: string, data: LyricPutRequest, params: RequestParams = {}) =>
-      this.request<void, void | ProblemDetails>({
+      this.request<LyricInfoResponse, void | ProblemDetails>({
         path: `/lyric/${type}`,
         method: "PUT",
         body: data,
         type: ContentType.Json,
+        format: "json",
         ...params,
       }),
   };
