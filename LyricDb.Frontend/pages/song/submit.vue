@@ -7,6 +7,7 @@ let songInfo = reactive({
   singer: '',
   album: '',
   duration: 0,
+  cover: '',
   binds: [
     {
       platform: 'ncm',
@@ -32,6 +33,7 @@ function submit() {
     artists: songInfo.singer,
     album: songInfo.album,
     duration: songInfo.duration,
+    cover: songInfo.cover,
     binds: [] as Array<string>
   };
   data.binds = songInfo.binds.map((bind) => {
@@ -69,6 +71,7 @@ function submit() {
       <v-text-field v-model="songInfo.singer" label="艺术家" outlined/>
       <v-text-field v-model="songInfo.album" label="专辑" outlined/>
       <v-text-field v-model="songInfo.duration" label="时长 (毫秒)" outlined/>
+      <v-text-field v-model="songInfo.cover" label="专辑封面链接" outlined/>
       <v-row v-for="bind in songInfo.binds">
         <v-col cols="4">
           <v-select v-model="bind.platform" :items="KnownMusicPlatforms" density="compact" item-title="name"

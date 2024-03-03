@@ -211,6 +211,9 @@ export interface SongPostRequest {
   name?: string | null;
   artists?: string | null;
   album?: string | null;
+  /** @format int32 */
+  duration?: number;
+  cover?: string | null;
   binds?: string[] | null;
 }
 
@@ -218,6 +221,9 @@ export interface SongPutRequest {
   name?: string | null;
   artists?: string | null;
   album?: string | null;
+  /** @format int32 */
+  duration?: number;
+  cover?: string | null;
   binds?: string[] | null;
   /** @format uuid */
   currentLyric?: string;

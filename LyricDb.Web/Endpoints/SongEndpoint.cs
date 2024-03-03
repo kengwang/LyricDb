@@ -191,6 +191,8 @@ public class SongEndpoint : IEndpointBase
             Artists = request.Artists,
             Album = request.Album,
             Binds = request.Binds,
+            Duration = request.Duration,
+            Cover = request.Cover,
             CreateTime = DateTime.Now,
             Submitter = user
         };
