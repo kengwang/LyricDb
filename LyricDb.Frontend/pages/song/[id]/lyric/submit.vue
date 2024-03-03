@@ -132,7 +132,7 @@ function setMainLyric() {
     <v-form>
       <v-select
           v-model="lyricInfo.type"
-          :items="['alrc', 'ttml']"
+          :items="['alrc', 'ttml', 'lrc', 'lyricify', 'yrc', 'qrc']"
           label="歌词类型"/>
 
       <LazyMonacoEditor

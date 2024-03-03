@@ -37,6 +37,6 @@ public class LyricConverterSelector : ILyricConverterSelector
 
     public ILyricConverter<string>? GetConverter(string? type)
     {
-        return _converters.GetValueOrDefault(type);
+        return _converters.GetValueOrDefault(type ?? "");
     }
 }
