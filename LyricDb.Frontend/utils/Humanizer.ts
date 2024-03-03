@@ -29,5 +29,9 @@ export const KnownMusicPlatforms = [
     {
         id: 'spo',
         name: 'Spotify'
+    },
+    {
+        id: 'isr',
+        name: 'ISRC'
     }
 ]

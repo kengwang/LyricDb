@@ -13,10 +13,11 @@ function onAvatarClick() {
 <template>
   <v-app-bar
       class="px-3">
-    <v-app-bar-title class="app-title">
-      LyricDB
-    </v-app-bar-title>
-
+    <NuxtLink to="/song">
+      <v-app-bar-title class="app-title">
+        LyricDB
+      </v-app-bar-title>
+    </NuxtLink>
     <v-spacer/>
 
 

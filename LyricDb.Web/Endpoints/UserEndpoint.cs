@@ -122,7 +122,7 @@ public class UserEndpoint : IEndpointBase
         [FromServices] UserManager<User> userManager,
         CancellationToken cancellationToken = default)
     {
-        var user = await userManager.Users.FirstOrDefaultAsync(t => t.Id == id);
+        var user = await userManager.Users.FirstOrDefaultAsync(t => t.Id == id, cancellationToken: cancellationToken);
         if (user is null)
         {
             return Results.NotFound();

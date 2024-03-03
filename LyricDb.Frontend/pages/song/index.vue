@@ -8,14 +8,16 @@ const context = reactive({
   totalPage: 0,
   total: 0,
   songs: [] as Array<SongInfoDisplay>,
-  haveResult: true
+  haveResult: true,
+  onlyNoLyric: false
 })
 
 function fireSongFetchEvent() {
   context.loading = true
   useApi().song.getPagedSongs({
     search: context.search,
-    page: context.page - 1
+    page: context.page - 1,
+    unlyriced : context.onlyNoLyric
   })
       .then((res) => {
         if (res.data.items?.length) {
@@ -59,8 +61,9 @@ function onSearch(event: KeyboardEvent) {
       <h2>歌曲列表</h2>
     </v-card-title>
 
-    <v-text-field v-model="context.search" class="my-4" density="compact" label="搜索" prepend-icon="mdi-magnify"
+    <v-text-field v-model="context.search" class="mt-4" density="compact" label="搜索" prepend-icon="mdi-magnify"
                   @keyup.enter="onSearch"/>
+    <v-checkbox label="只看无歌词" class="my-1" v-model="context.onlyNoLyric" @change="fireSongFetchEvent"/>
     <NuxtLink to="/song/submit">
       <v-btn class="w-100" color="primary">提交新歌曲</v-btn>
     </NuxtLink>

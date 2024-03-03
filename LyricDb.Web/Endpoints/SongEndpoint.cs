@@ -85,11 +85,16 @@ public class SongEndpoint : IEndpointBase
         [FromQuery] int page = 0,
         [FromQuery] int pageSize = 10,
         [FromQuery] string search = "",
+        [FromQuery] bool unlyriced = false,
         CancellationToken cancellationToken = default)
     {
         var query = await repository.GetQueryableAsync(cancellationToken);
         if (!string.IsNullOrWhiteSpace(search))
             query = query.Where(t => t.Name.Contains(search) || t.Album.Contains(search) || t.Artists.Contains(search));
+        if (unlyriced)
+        {
+            query = query.Where(t => t.CurrentLyric == Guid.Empty);
+        }
         var total = await query.CountAsync(cancellationToken);
         var songs = await query
             .OrderByDescending(t => t.CreateTime)
