@@ -20,7 +20,7 @@ builder.Host.UseWolverine(
     {
         options.UseRabbitMq(rabbit =>
         {
-            rabbit.HostName = context.Configuration.GetValue<string>("RabbitMQ:Host") ?? "localhost";
+            rabbit.Uri = new Uri("amqp://guest:guest@rabbitmq:5672/");
         }).AutoProvision();
         options.ListenToRabbitQueue("lyricdb");
         options.PublishAllMessages().ToRabbitExchange("lyricdb");
