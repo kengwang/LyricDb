@@ -307,7 +307,10 @@ export class HttpClient<SecurityDataType = unknown> {
   private format?: ResponseType;
 
   constructor({ securityWorker, secure, format, ...axiosConfig }: ApiConfig<SecurityDataType> = {}) {
-    this.instance = axios.create({ ...axiosConfig, baseURL: axiosConfig.baseURL || "" });
+    this.instance = axios.create({
+      ...axiosConfig,
+      baseURL: axiosConfig.baseURL || "https://lyricdb.kengwang.com.cn/api/",
+    });
     this.secure = secure;
     this.format = format;
     this.securityWorker = securityWorker;
@@ -396,6 +399,7 @@ export class HttpClient<SecurityDataType = unknown> {
 /**
  * @title LyricDb.Web
  * @version 1.0
+ * @baseUrl https://lyricdb.kengwang.com.cn/api/
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {
   lyric = {
@@ -845,6 +849,20 @@ export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDa
         path: `/user/${id}/verify/email`,
         method: "GET",
         query: query,
+        ...params,
+      }),
+
+    /**
+     * No description
+     *
+     * @tags UserEndpoint
+     * @name Logout
+     * @request GET:/user/logout
+     */
+    logout: (params: RequestParams = {}) =>
+      this.request<void, any>({
+        path: `/user/logout`,
+        method: "GET",
         ...params,
       }),
   };

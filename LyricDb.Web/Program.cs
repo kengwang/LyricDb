@@ -18,12 +18,14 @@ builder.AddEndpoint<ALRCEndpoint>();
 builder.Host.UseWolverine(
     (context, options) =>
     {
+#if !DEBUG
         options.UseRabbitMq(rabbit =>
         {
             rabbit.HostName = context.Configuration.GetValue<string>("RabbitMQ:Host");
         }).AutoProvision();
         options.ListenToRabbitQueue("lyricdb-backend");
         options.PublishAllMessages().ToRabbitQueue("lyricdb-worker");
+#endif
     }
 );
 builder.Services.AddCors(options =>

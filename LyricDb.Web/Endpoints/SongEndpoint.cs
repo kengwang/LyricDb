@@ -57,7 +57,9 @@ public class SongEndpoint : IEndpointBase
             .Produces<SongInfoResponse>()
             .WithName(nameof(DeleteSongById));
     }
-    
+
+
+
     [Authorize(Roles = AuthRole.Reviewer)]
     private static async Task<IResult> SetSongLyric(
         [FromRoute] Guid id,

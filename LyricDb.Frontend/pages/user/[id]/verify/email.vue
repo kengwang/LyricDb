@@ -9,7 +9,7 @@ let verifyInfo = reactive({
 useApi().user.confirmEmail(userId, {token: verifyToken}).then(() => {
   verifyInfo.isVerified = true
   verifyInfo.isLoading = false
-  message.value = "邮箱验证成功"
+  message.value = "邮箱验证成功，请重新登录"
   updateUserInfo()
 }).catch(() => {
   verifyInfo.isVerified = false

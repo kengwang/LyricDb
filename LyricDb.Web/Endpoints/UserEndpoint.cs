@@ -87,8 +87,16 @@ public class UserEndpoint : IEndpointBase
             .Produces(StatusCodes.Status400BadRequest)
             .Produces(StatusCodes.Status404NotFound)
             .WithName(nameof(ConfirmEmail));
+        group.MapGet("/logout", Logout)
+            .WithName(nameof(Logout));
     }
     
+    private static async Task Logout([FromServices] SignInManager<User> signInManager, CancellationToken cancellationToken = default)
+    {
+        await signInManager.SignOutAsync();
+        return;
+    }
+
     private static async Task<IResult> GetUserPagedLyrics(
         [FromServices] IRepository<Lyric> repository,
         [FromServices] IMapper<Lyric, LyricInfoResponse> mapper,
@@ -110,7 +118,7 @@ public class UserEndpoint : IEndpointBase
             Page = page,
             PageSize = pageSize,
             TotalCount = total,
-            TotalPages = (int) Math.Ceiling(total / (double) pageSize),
+            TotalPages = (int)Math.Ceiling(total / (double)pageSize),
             Items = lyrics.Select(mapper.Map).ToList()
         });
     }
@@ -119,6 +127,7 @@ public class UserEndpoint : IEndpointBase
         [FromQuery] string token,
         [FromServices] RoleManager<IdentityRole<Guid>> roleManager,
         [FromRoute] Guid id,
+        SignInManager<User> signInManager,
         [FromServices] UserManager<User> userManager,
         CancellationToken cancellationToken = default)
     {
@@ -150,14 +159,18 @@ public class UserEndpoint : IEndpointBase
             await userManager.AddToRolesAsync(user, roles);
         }
 
+        await signInManager.SignOutAsync();
         return result.Succeeded
             ? Results.Ok()
             : Results.Problem("验证失败", statusCode: StatusCodes.Status400BadRequest);
     }
 
     [Authorize]
-    private static async Task<IResult> UpdateUserInfo([FromServices] UserManager<User> userManager,
-        [FromBody] UserPutRequest request, ClaimsPrincipal principal, IMapper<User, UserInfoResponse> mapper)
+    private static async Task<IResult> UpdateUserInfo(
+        [FromServices] UserManager<User> userManager,
+        [FromBody] UserPutRequest request,
+        ClaimsPrincipal principal,
+        IMapper<User, UserInfoResponse> mapper)
     {
         var user = await userManager.GetUserAsync(principal);
         if (user is null)
@@ -290,6 +303,7 @@ public class UserEndpoint : IEndpointBase
         {
             avatarSb.Append(avatarMd5Arr[i].ToString("x2"));
         }
+
         var user = new User
         {
             UserName = request.Name,

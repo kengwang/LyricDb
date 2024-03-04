@@ -42,6 +42,16 @@ function onAvatarClick() {
       <NuxtLink to="https://docs.lyricdb.kengwang.com.cn">
         <v-list-item prepend-icon="mdi-text-box" title="文档"/>
       </NuxtLink>
+      <v-divider />
+      <NuxtLink  v-if="userInfo.isLogin" to="/user">
+        <v-list-item prepend-icon="mdi-account" title="个人中心"/>
+      </NuxtLink>
+      <NuxtLink v-if="userInfo.isLogin" to="/user/logout">
+        <v-list-item prepend-icon="mdi-logout" title="登出"/>
+      </NuxtLink>
+      <NuxtLink v-else to="/user/login">
+        <v-list-item prepend-icon="mdi-login" title="登录"/>
+      </NuxtLink>
     </v-list>
   </v-navigation-drawer>
 </template>
